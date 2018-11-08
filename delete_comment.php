@@ -4,13 +4,12 @@
   require_once('utils.php');
 
   if (
-    isset($_POST['content']) &&
-    !empty($_POST['content'])
+    isset($_POST['id']) &&
+    !empty($_POST['id'])
   ) {
-      $content = $_POST['content'];
-      $parent_id = $_POST['parent_id'];
+      $id = $_POST['id'];
 
-      $sql = "INSERT INTO huli_comments(username, content, parent_id) VALUES('$user', '$content', $parent_id)";
+      $sql = "DELETE FROM huli_comments where id=$id or parent_id=$id";
       if ($conn->query($sql)) {
         // server redirect
         header('Location: ./index.php');
@@ -19,6 +18,6 @@
         printMessage($conn->error, './index.php'); 
       }
   } else {
-    printMessage('請輸入內容！', './index.php'); 
+    printMessage('錯誤', './index.php'); 
   }
 ?>

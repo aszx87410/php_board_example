@@ -7,6 +7,7 @@
   display: flex;
   padding: 0 32px;
   justify-content: space-between;
+  z-index: 10;
 }
 
 .nav__list {
@@ -54,8 +55,61 @@
   background: #CA7853;
   padding: 16px;
   border: 1px solid #ececec;
+  position: relative;
 }
 
 .comment__content {
   margin: 12px 0px;
+}
+
+.sub-comments {
+  width: 600px;
+  margin: 0 auto;
+  margin-top: 30px;
+  color: white;
+}
+
+.sub-comment {
+  margin-bottom: 12px;
+  background: #6A4C9C;
+  padding: 16px;
+  border: 1px solid #ececec;
+  position: relative;
+}
+
+.add-sub-comment {
+  margin-bottom: 12px;
+  background: #6A4C9C;
+  padding: 16px;
+  border: 1px solid #ececec;
+}
+
+.sub-comment__content {
+  margin: 12px 0px;
+}
+
+.delete-comment {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+
+.delete-comment input[type=submit], .edit-comment input[type=submit]  {
+  width: 100px;
+  font-size: 25px;
+}
+
+.edit-comment {
+  position: absolute;
+  top: 5px;
+  right: 120px;
+}
+
+.page {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.page a {
+  margin-left: 10px;
 }
