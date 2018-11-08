@@ -1,7 +1,6 @@
 <?php
-  if (isset($_COOKIE['username']) && !empty($_COOKIE['username'])) {
-    $user = $_COOKIE['username'];
-  } else {
-    $user = null;
-  }
+  include_once('./conn.php');
+  include_once('./utils.php');
+
+  $user = getUserByToken($conn, $_COOKIE['token']);
 ?>

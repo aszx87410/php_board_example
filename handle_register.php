@@ -12,11 +12,11 @@
   ) {
       $nickname = $_POST['nickname'];
       $username = $_POST['username'];
-      $password = $_POST['password'];
+      $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
       
       $sql = "INSERT INTO huli_users(nickname, username, password) VALUES('$nickname', '$username', '$password')";
       if ($conn->query($sql)) {
-        setcookie("username", $username, time()+3600*24);
+        setToken($conn, $username);
         printMessage('註冊成功！', './index.php');
       } else {
         printMessage($conn->error, './register.php'); 

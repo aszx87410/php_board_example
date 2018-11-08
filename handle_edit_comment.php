@@ -8,17 +8,15 @@
     !empty($_POST['content'])
   ) {
       $content = $_POST['content'];
-      $parent_id = $_POST['parent_id'];
+      $id = $_POST['id'];
 
-      $sql = "INSERT INTO huli_comments(username, content, parent_id) VALUES('$user', '$content', $parent_id)";
+      $sql = "UPDATE huli_comments SET content = '$content' WHERE id = $id";
       if ($conn->query($sql)) {
-        // server redirect
         header('Location: ./index.php');
       } else {
-        // client redirect
-        printMessage($conn->error, './index.php'); 
+        printMessage($conn->error, $_SERVER["HTTP_REFERER"]); 
       }
   } else {
-    printMessage('請輸入內容！', './index.php'); 
+    printMessage('請輸入內容！', $_SERVER["HTTP_REFERER"]); 
   }
 ?>
