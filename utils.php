@@ -6,6 +6,10 @@
     echo '</script>';
   }
 
+  function escape($str) {
+    return htmlspecialchars($str, ENT_QUOTES, 'utf-8');
+  }
+
   function setToken($conn, $username) {
     $token = uniqid();
     $sql = "DELETE FROM huli_certificates where username='$username'";
@@ -16,27 +20,10 @@
     setcookie("token", $token, time()+3600*24);
   } 
 
-  function getUserByToken($conn, $token) {
-    if (isset($token) && !empty($token)) {
-      $sql = "SELECT * from huli_certificates where token='$token'";
-      $result = $conn->query($sql);
-      if (!$result || $result->num_rows <= 0) {
-        return null;
-      }
-      $row = $result->fetch_assoc();
-      return $row['username'];
-    } else {
-      return null;
-    }
-  }
-
   function renderDeleteBtn($id) {
     return "
-      <div class='delete-comment'>
-        <form method='POST' action='./delete_comment.php'>
-            <input type='hidden' name='id' value='$id' />
-            <input type='submit' value='刪除' />
-        </form>
+      <div class='btn delete-comment' data-id='$id'>
+        刪除
       </div>
     ";
   }

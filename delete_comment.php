@@ -8,16 +8,24 @@
     !empty($_POST['id'])
   ) {
       $id = $_POST['id'];
-
-      $sql = "DELETE FROM huli_comments where id=$id or parent_id=$id";
-      if ($conn->query($sql)) {
-        // server redirect
-        header('Location: ./index.php');
+      $sql = "DELETE FROM huli_comments where (id=? or parent_id=?) AND username =?";
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("iis", $id, $id, $user );
+      if ($stmt->execute()) {
+        echo json_encode(array(
+          'result' => 'success',
+          'message' => 'successfully deleted'
+        ));
       } else {
-        // client redirect
-        printMessage($conn->error, './index.php'); 
+        echo json_encode(array(
+          'result' => 'failure',
+          'message' => 'delete failed'
+        ));
       }
   } else {
-    printMessage('錯誤', './index.php'); 
+    echo json_encode(array(
+      'result' => 'failure',
+      'message' => 'delete failed'
+    ));
   }
 ?>

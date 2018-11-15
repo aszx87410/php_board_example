@@ -8,6 +8,34 @@
   <head>
     <title>Home</title>
     <link rel="stylesheet" type="text/css" href="./style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script>
+      $(document).ready(function(){
+        $('.comments').on('click', '.delete-comment', function(e){
+          if(!confirm('是否確定要刪除？')) return
+          const id = $(e.target).attr('data-id')
+
+          $.ajax({
+            method: "POST",
+            url: "./delete_comment.php",
+            data: {
+              id
+            }
+          }).done(function(response) {
+            const msg = JSON.parse(response)
+            alert(msg.message)
+            const subComment = $(e.target).parent('.sub-comment')
+            if (subComment.length === 0) {
+              $(e.target).parent('.comment').hide(200)
+            } else {
+              subComment.hide(200)
+            }
+          }).fail(function(){
+            alert('刪除失敗！')
+          });
+        })
+      })
+    </script>
   </head>
 
   <body>
@@ -27,10 +55,12 @@
         LEFT JOIN huli_users as u ON c.username = u.username
         WHERE c.parent_id = 0
         ORDER BY c.id DESC
-        LIMIT $start, $size
+        LIMIT ?, ?
       ";
-
-      $result = $conn->query($sql);
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("ii", $start, $size);
+      $is_success = $stmt->execute();
+      $result = $stmt->get_result();
     ?>
     <div class='container'>
       <div class='form-wrapper'>
@@ -54,8 +84,10 @@
       </div>
       <?php
           $count_sql = "SELECT count(*) as count FROM huli_comments where parent_id=0";
-          $count_result = $conn->query($count_sql);
-          if ($count_result && $count_result->num_rows > 0) {
+          $stmt_conut = $conn->prepare($count_sql);
+          $is_count_success = $stmt_conut->execute();
+          $count_result = $stmt_conut->get_result();
+          if ($is_count_success && $count_result->num_rows > 0) {
             $count = $count_result->fetch_assoc()['count'];
             $total_page = ceil($count / $size);
             echo '<div class="page">';
@@ -68,12 +100,12 @@
       ?>
       <div class='comments'>
           <?php
-            if ($result) {
+            if ($is_success) {
               while($row = $result->fetch_assoc()) {
                 ?>
                   <div class='comment'>
-                    <div class='comment__author'>作者：<?= $row['nickname'] ?></div>
-                    <div class='comment__content'><?= $row['content'] ?></div>
+                    <div class='comment__author'>作者：<?= escape($row['nickname']) ?></div>
+                    <div class='comment__content'><?= escape($row['content']) ?></div>
                     <div class='comment__time'>發言時間：<?= $row['created_at']?></div>
 
                     <?php
@@ -90,17 +122,20 @@
                           SELECT c.id, c.content, c.created_at, c.username, u.nickname
                           FROM huli_comments as c
                           LEFT JOIN huli_users as u ON c.username = u.username
-                          WHERE c.parent_id = $parent_id
+                          WHERE c.parent_id = ?
                           ORDER BY c.id DESC
                         ";
-                        $result_sub = $conn->query($sql_sub);
+                        $stmt_sub = $conn->prepare($sql_sub);
+                        $stmt_sub->bind_param("i", $parent_id);
+                        $is_sub_success = $stmt_sub->execute();
+                        $result_sub = $stmt_sub->get_result();
 
-                        if ($result_sub) {
+                        if ($is_sub_success) {
                           while($row_sub = $result_sub->fetch_assoc()) {
                       ?>
                         <div class="sub-comment">
-                            <div class="sub-comment__author">作者：<?= $row_sub['nickname'] ?></div>
-                            <div class="sub-comment__content"><?= $row_sub['content'] ?></div>
+                            <div class="sub-comment__author">作者：<?= escape($row_sub['nickname']) ?></div>
+                            <div class="sub-comment__content"><?= escape($row_sub['content']) ?></div>
                             <div class="sub-comment__time">發言時間：<?= $row_sub['created_at']?></div>
                             <?php
                               if ($user === $row_sub['username']) {
@@ -129,7 +164,6 @@
                             <?php else: ?>
                                 <div>請先註冊或登入</div>
                             <?php endif; ?>
-                            
                         </form>
                       </div>
                     </div>
